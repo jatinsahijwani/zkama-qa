@@ -119,11 +119,11 @@ The native Rust verifier is the genuinely novel engineering work in ZKAMA. Every
 
 ### Cryptographic operations
 
-BN254 pairing arithmetic is the heaviest operation in a Groth16 verifier. We handle it via one of two paths, selected at deploy time based on PolkaVM precompile availability:
+BN254 pairing arithmetic is the heaviest operation in a Groth16 verifier. For the Kusama Asset Hub target, ZKAMA will use Revive's Ethereum-native BN128/alt_bn128 precompile interface for add, multiply, and pairing checks at addresses `0x06`, `0x07`, and `0x08`. For the M1/M2 BN254 Groth16 path, ZKAMA will target these precompiles first. The pure Rust `no_std` verifier remains the fallback path for environments where those precompiles are unavailable or where precompile-independent verification is required.
 
 | Path | When used | Tradeoff |
 |---|---|---|
-| **A. Precompile-backed** | BN254 precompiles available on Asset Hub | Faster, aligns with the BN254 precompile RFP from the curator team |
+| **A. Precompile-backed** | Default path on Kusama Asset Hub Revive using BN128/alt_bn128 precompiles | Faster, uses the runtime-level add, multiply, and pairing checks |
 | **B. Pure Rust** | Precompiles not available, or precompile-independence is required | Slower but portable, relies on a `no_std` port of `ark-bn254` |
 
 The SDK detects available precompiles at deploy time and selects the appropriate path automatically. Users can override via a CLI flag.
@@ -191,13 +191,14 @@ Groth16 first because of ecosystem maturity and proof size. PLONK second because
 
 We're committing to a transparent reporting methodology rather than a specific performance multiple. Overpromising on benchmarks is the fastest way to lose credibility, and underpromising costs nothing.
 
-### Measured metrics (per standard circuit)
+### Measured metrics
 
-Standard circuits used for benchmarking:
+Benchmark circuits will include both demo-sized and stress-test cases:
 
-- Poseidon hash
-- Merkle membership proof
-- Age verification
+- Age verification: small, user-friendly demo circuit
+- Poseidon hash: cryptographic primitive baseline
+- Merkle membership proof: realistic application circuit
+- Large Merkle membership proof / Poseidon-heavy circuit: stress-test case for proof generation time, verifier input handling, and serialization overhead
 
 For each circuit we'll publish:
 
@@ -205,9 +206,10 @@ For each circuit we'll publish:
 |---|---|
 | Proof generation time | milliseconds (reference: MacBook Air M1 (8-core CPU, 8GB RAM), and a Linux x86 8-core) |
 | Proof size | bytes |
-| On-chain verification: `ref_time` gas dimension | gas units |
-| On-chain verification: `proof_size` gas dimension | bytes |
-| Contract deployment cost | gas + storage deposit |
+| On-chain verification gas estimate | gas returned by Ethereum-compatible RPC estimation |
+| On-chain verification weight | `ref_time` and `proof_size` where exposed by Revive/runtime dry-run or execution metadata |
+| Storage deposit | native balance reserved/refunded for contract storage, where applicable |
+| Contract deployment cost | gas estimate, transaction fee/length fee, and storage deposit |
 
 ### Baselines published side-by-side
 
