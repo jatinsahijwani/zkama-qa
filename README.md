@@ -99,7 +99,7 @@ const result    = await verifyOnchain({ proof, contract: address });
 
 ### End-to-end characteristics
 
-- Total time on a developer laptop (Apple M2 or Linux x86 8-core): under 5 minutes for standard circuits.
+- Total time on a developer laptop (MacBook Air M1 (8-core CPU, 8GB RAM) or Linux x86 8-core): under 5 minutes for standard circuits.
 - On-chain verification: one Asset Hub block.
 - A recorded end-to-end demo video ships as part of M1 deliverables.
 
@@ -203,7 +203,7 @@ For each circuit we'll publish:
 
 | Metric | Unit |
 |---|---|
-| Proof generation time | milliseconds (reference: Apple M2 or Linux x86 8-core) |
+| Proof generation time | milliseconds (reference: MacBook Air M1 (8-core CPU, 8GB RAM), and a Linux x86 8-core) |
 | Proof size | bytes |
 | On-chain verification: `ref_time` gas dimension | gas units |
 | On-chain verification: `proof_size` gas dimension | bytes |
